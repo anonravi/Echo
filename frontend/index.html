@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GhostDocs | AI Documentation Agent</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0f172a;
+            --card-bg: #1e293b;
+            --primary: #38bdf8;
+            --secondary: #818cf8;
+            --text: #f8fafc;
+            --accent: #f472b6;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        h1 {
+            font-size: 3rem;
+            margin: 0;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 800;
+        }
+
+        .card {
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            margin-bottom: 30px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border-radius: 10px;
+            border: 1px solid #334155;
+            background: #0f172a;
+            color: white;
+            font-size: 1rem;
+            box-sizing: border-box;
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 12px;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            color: white;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: transform 0.2s, opacity 0.2s;
+        }
+
+        button:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+
+        .job-list {
+            margin-top: 40px;
+        }
+
+        .job-item {
+            background: rgba(255,255,255,0.05);
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .status {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-pending { background: #eab308; color: #000; }
+        .status-processing { background: #38bdf8; color: #000; }
+        .status-completed { background: #22c55e; color: #fff; }
+        .status-failed { background: #ef4444; color: #fff; }
+
+        .loader {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid var(--primary);
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 2s linear infinite;
+            display: inline-block;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>GhostDocs</h1>
+            <p>AI-Powered Autonomous Documentation</p>
+        </header>
+
+        <div class="card">
+            <div class="input-group">
+                <label>Repository Name (User/Repo)</label>
+                <input type="text" id="repo_name" placeholder="anonravi/GhostDocs" value="anonravi/GhostDocs">
+            </div>
+            <div class="input-group">
+                <label>Commit SHA</label>
+                <input type="text" id="commit_sha" placeholder="main" value="main">
+            </div>
+            <button onclick="generateDocs()" id="generateBtn">Trigger Documentation PR</button>
+        </div>
+
+        <div class="job-list" id="jobList">
+            <!-- Jobs will appear here -->
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://127.0.0.1:8000';
+
+        async function fetchJobs() {
+            try {
+                const res = await fetch(`${API_URL}/jobs`);
+                const jobs = await res.json();
+                const list = document.getElementById('jobList');
+                list.innerHTML = '<h2>Recent Jobs</h2>' + jobs.reverse().map(job => `
+                    <div class="job-item">
+                        <div>
+                            <strong>${job.repo_name}</strong><br>
+                            <small>${job.commit_sha.substring(0, 7)}</small>
+                        </div>
+                        <div style="text-align: right">
+                            <span class="status status-${job.status}">${job.status}</span><br>
+                            ${job.pr_url ? `<a href="${job.pr_url}" target="_blank" style="color: var(--primary); font-size: 0.8rem">View PR</a>` : ''}
+                        </div>
+                    </div>
+                `).join('');
+            } catch (err) {
+                console.error("Fetch jobs failed", err);
+            }
+        }
+
+        async function generateDocs() {
+            const btn = document.getElementById('generateBtn');
+            const repo = document.getElementById('repo_name').value;
+            const sha = document.getElementById('commit_sha').value;
+
+            btn.disabled = true;
+            btn.innerHTML = '<span class="loader"></span> Sending...';
+
+            try {
+                const res = await fetch(`${API_URL}/generate`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ repo_name: repo, commit_sha: sha })
+                });
+                const data = await res.json();
+                console.log("Job triggered:", data);
+                setTimeout(fetchJobs, 1000);
+            } catch (err) {
+                alert("Failed to trigger: " + err.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = 'Trigger Documentation PR';
+            }
+        }
+
+        setInterval(fetchJobs, 3000);
+        fetchJobs();
+    </script>
+</body>
+</html>
