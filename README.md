@@ -1,95 +1,86 @@
-# EchoGO - Voice Generation Platform
+# GhostDocs: AI Documentation Agent
 
-EchoGO is a professional voice generation platform that enables organizations to create high-quality voice recordings using AI technology.
+![Status](https://img.shields.io/badge/status-Under%20Development-orange.svg)
+![License](https://img.shields.io/badge/license-MIT-blue.svg)
+![Tech Stack](https://img.shields.io/badge/tech-HTML%2FCSS%2FJavaScript-brightgreen.svg)
 
-## Features
+## 🚀 Project Overview
 
-- **Admin Dashboard**: Manage users, voice models, view generation history, and configure system settings
-- **Employee Dashboard**: Generate voice audio, access generation history, and manage personal settings
-- **Voice Model Management**: Add and manage voice models with custom descriptions and audio samples
-- **User Management**: Create and manage employee accounts with role-based access control
-- **Database Integration**: SQLite database for persistent data storage
-- **Modern UI**: Built with Next.js, Tailwind CSS, and shadcn/ui components
+GhostDocs is an innovative AI Documentation Agent designed to streamline and automate the process of generating high-quality, professional documentation for codebases. This frontend application serves as the interactive interface for users to submit code, receive generated documentation, and manage their documentation projects. It aims to significantly reduce the manual effort involved in maintaining up-to-date and comprehensive project documentation.
 
-## Installation
+### What It Does
 
-1. Clone the repository:
-   ```
-   git clone <repository-url>
-   cd echo-of-goats
-   ```
+The primary function of GhostDocs is to act as an intelligent intermediary between developers and their documentation needs. While the current context only provides the frontend `index.html`, the system's overall vision includes:
 
-2. Install dependencies:
-   ```
-   npm install
-   ```
+*   **Code Input**: Allows users to input or connect their code repositories.
+*   **AI-Powered Generation**: Leverages advanced AI models to analyze code and generate various documentation artifacts.
+*   **Interactive Interface**: Provides a user-friendly web interface for configuration, review, and export of documentation.
+*   **Multi-format Output**: Supports generation of documentation in industry-standard formats like Markdown, JSDoc, OpenAPI specifications, and more.
 
-3. Initialize the database:
-   ```
-   npm run db:init
-   ```
+This `index.html` file represents the foundational structure and styling for the client-side application, ensuring a consistent and pleasant user experience.
 
-4. Start the development server:
-   ```
-   npm run dev
-   ```
+## ⚡ Quick Start
 
-5. Access the application at `http://localhost:9002`
+To get the GhostDocs frontend running locally, follow these simple steps.
 
-## Development Credentials
+### Prerequisites
 
-During development, you can use these credentials:
-- Admin: `admin_user` / `admin123`
-- Employee: `employee_user` / `employee123`
+No specific server-side prerequisites are needed to run the frontend locally, as it's a static HTML file. A modern web browser is sufficient.
 
-## Production Setup
+### Installation
 
-Before deploying to production, follow these steps to prepare the application:
+1.  **Clone the repository:**
+    ```bash
+    git clone https://github.com/your-username/ghostdocs.git
+    cd ghostdocs
+    ```
+    *(Note: Replace `your-username/ghostdocs.git` with the actual repository URL once available.)*
 
-1. Update the admin user and remove demo credentials:
-   ```
-   node scripts/update-admin-user.js
-   ```
+2.  **Navigate to the frontend directory:**
+    ```bash
+    cd frontend
+    ```
 
-2. Alternatively, run the production preparation script which updates admin credentials and builds the application:
-   ```
-   node scripts/prepare-production.js
-   ```
+3.  **Open `index.html` in your browser:**
+    You can simply open the `index.html` file directly using your web browser:
+    *   On Windows: Double-click `index.html`.
+    *   On macOS: Drag `index.html` to your browser icon.
+    *   Alternatively, use a simple local web server for better practice (e.g., Python's `http.server`):
+        ```bash
+        python -m http.server 8000
+        # Then open http://localhost:8000/index.html in your browser
+        ```
 
-3. The default production admin credentials will be:
-   - Username: `shashank`
-   - Email: `vpsillusion@gmail.com`
-   - Password: `greyhatkdo`
+    The GhostDocs application will now be accessible in your browser.
 
-4. Deploy the application to your preferred hosting provider.
+## 📁 Project Structure
 
-## Environment Variables
-
-Create a `.env.local` file in the root directory with the following variables:
+The project adheres to a clear and organized directory structure. As per the current context, the structure is focused on the frontend component.
 
 ```
-# Application
-NEXT_PUBLIC_APP_URL=http://localhost:9002
-
-# Authentication
-NEXTAUTH_SECRET=your-secret-key
-NEXTAUTH_URL=http://localhost:9002
-
-# ElevenLabs API (Optional)
-ELEVENLABS_API_KEY=your-elevenlabs-api-key
+.ghostdocs/
+├── frontend/
+│   └── index.html      # Main HTML file for the single-page application.
+└── README.md           # This documentation file.
+└── ...                 # Other project files (e.g., backend, tests) - not shown in current context.
 ```
 
-## Technologies Used
+| File/Directory      | Description                                                                 |
+| :------------------ | :-------------------------------------------------------------------------- |
+| `frontend/`         | Contains all client-side assets and code for the user interface.            |
+| `frontend/index.html` | The entry point for the frontend application, defining the UI structure and initial styles. |
+| `README.md`         | The main project README file.                                               |
 
-- Next.js 15.2
-- React 18.3
-- TypeScript
-- Tailwind CSS
-- shadcn/ui
-- SQLite with better-sqlite3
-- bcrypt for password hashing
+## 🤝 Contributing
 
-## License
+*(This section will be expanded once the project is more mature and contribution guidelines are defined.)*
 
-All rights reserved.
-# Echo
+We welcome contributions to GhostDocs! If you're interested in helping improve this AI Documentation Agent, please refer to our `CONTRIBUTING.md` (to be created) for guidelines on how to submit issues, pull requests, and report bugs.
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details. *(Note: The `LICENSE` file is assumed; it will be added once available.)*
+
+## 📞 Contact
+
+For any inquiries or feedback, please open an issue in the project's GitHub repository or reach out via [email@example.com](mailto:email@example.com).
