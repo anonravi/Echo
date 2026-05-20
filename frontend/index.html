@@ -15,48 +15,194 @@
         These variables control background colors, text colors, and accent colors.
         */
         :root {
-            /** @property {string} --bg - The primary background color for the application. */
+            /** 
+             * @property {string} --bg - The primary background color for the application's main canvas.
+             * @default #0f172a
+             */
             --bg: #0f172a;
-            /** @property {string} --card-bg - The background color for card-like components. */
+            /** 
+             * @property {string} --card-bg - The background color specifically for card-like components or sections.
+             * @default #1e293b
+             */
             --card-bg: #1e293b;
-            /** @property {string} --primary - The primary accent color, often used for interactive elements. */
-            --primary: #38bdf8;
-            /** @property {string} --secondary - A secondary accent color, complementing the primary. */
-            --secondary: #818cf8;
-            /** @property {string} --text - The default text color for readability. */
-            --text: #f8fafc;
-            /** @property {string} --accent - An additional accent color for highlights or specific UI elements. */
-            --accent: #f472b6;
+            /** 
+             * @property {string} --text-color - The default text color for general content.
+             * @default #e2e8f0
+             */
+            --text-color: #e2e8f0;
+            /** 
+             * @property {string} --accent-color - The primary accent color used for interactive elements, highlights, etc.
+             * @default #6366f1
+             */
+            --accent-color: #6366f1;
+            /** 
+             * @property {string} --border-color - The color used for borders, dividers, and subtle separators.
+             * @default #334155
+             */
+            --border-color: #334155;
+            /** 
+             * @property {string} --shadow-color - The color used for box shadows to provide depth.
+             * @default rgba(0, 0, 0, 0.2)
+             */
+            --shadow-color: rgba(0, 0, 0, 0.2);
         }
 
         /*
-        @description Styles for the main body of the HTML document.
-        Sets font family, background, text color, and establishes a flexbox layout for centering content.
+        @description Resets default browser styles for common elements to ensure consistent rendering across different browsers.
+        Applies box-sizing, removes default margins/paddings, and sets font inheritance.
+        */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        /*
+        @description Defines global body styles, applying custom properties for background and text colors.
+        Sets the default font family to 'Inter' and enables smooth scrolling.
         */
         body {
             font-family: 'Inter', sans-serif;
             background-color: var(--bg);
-            color: var(--text);
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-            padding: 40px 20px;
+            color: var(--text-color);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            scroll-behavior: smooth;
         }
 
         /*
-        @description Styles for a general container element, setting its maximum width and ensuring it takes full width within its constraints.
+        @description Styles for headings (h1-h6) to ensure consistent typography.
+        Sets font weight and line height for better readability.
+        */
+        h1, h2, h3, h4, h5, h6 {
+            font-weight: 800;
+            line-height: 1.2;
+            color: var(--text-color);
+        }
+
+        /*
+        @description Styles for anchor tags (links).
+        Removes default underline and applies the accent color for visual distinction.
+        */
+        a {
+            color: var(--accent-color);
+            text-decoration: none;
+        }
+
+        /*
+        @description Styles for anchor tags on hover.
+        Adds an underline effect to indicate interactivity.
+        */
+        a:hover {
+            text-decoration: underline;
+        }
+
+        /*
+        @description Basic container styling to center content and apply maximum width.
+        Provides consistent padding for content within the main layout.
         */
         .container {
-            max-width: 800px;
-            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
         }
 
         /*
-        @description Styles for the header section of the page, typically used for titles or navigation.
-        Centers the text content within the header.
+        @description Styles for a card-like component.
+        Applies background, border, border-radius, padding, and shadow for a distinct visual appearance.
         */
-        header {
-            text-align: center;
- 
+        .card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px var(--shadow-color);
+        }
+
+        /*
+        @description Styles for buttons.
+        Applies accent color, padding, border-radius, and hover effects for interactive elements.
+        */
+        .button {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            background-color: var(--accent-color);
+            color: var(--text-color);
+            border: none;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background-color 0.2s ease-in-out;
+        }
+
+        /*
+        @description Hover effect for buttons.
+        Darkens the background color slightly to provide visual feedback on interaction.
+        */
+        .button:hover {
+            background-color: #4f46e5; /* A slightly darker shade of --accent-color */
+        }
+
+        /*
+        @description Styles for form input fields and textareas.
+        Applies consistent styling with background, border, padding, and text color.
+        */
+        input[type="text"],
+        input[type="email"],
+        input[type="password"],
+        textarea {
+            width: 100%;
+            padding: 0.75rem;
+            margin-bottom: 1rem;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 0.375rem;
+            color: var(--text-color);
+            font-family: 'Inter', sans-serif;
+        }
+
+        /*
+        @description Focus state styles for input fields and textareas.
+        Highlights the active input with an accent-colored border.
+        */
+        input[type="text"]:focus,
+        input[type="email"]:focus,
+        input[type="password"]:focus,
+        textarea:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.5); /* Accent color with transparency */
+        }
+
+        /*
+        @description Placeholder text styling for input fields and textareas.
+        Sets a lighter color for placeholder text to distinguish it from user input.
+        */
+        ::placeholder {
+            color: #94a3b8; /* A lighter shade of text-color */
+        }
+
+        /*
+        @description Utility class for visually hiding elements while keeping them accessible to screen readers.
+        */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border-width: 0;
+        }
+    </style>
+</head>
+<body>
+    <!-- The main content of the application will be rendered here by JavaScript -->
+    <div id="app"></div>
+</body>
+</html>
