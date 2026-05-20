@@ -1,160 +1,192 @@
-## GhostDocs API Documentation (Conceptual)
+## GhostDocs API Documentation
 
-This document outlines the conceptual API for the GhostDocs AI Documentation Agent. As only the frontend `index.html` was provided, this API specification is based on the assumed functionality of an "AI Documentation Agent" and represents a typical design for such a system. The actual implementation details (e.g., specific programming language, framework) are placeholders.
+This document outlines the RESTful API endpoints for the GhostDocs AI Documentation Agent. The API facilitates interaction with the AI core for documentation generation, code analysis, and project management.
+
+**Note:** *The following API documentation is speculative and based on the assumed functionality of an "AI Documentation Agent" due to the limited codebase context provided. Actual endpoints and data structures may vary.*
+
+--- 
 
 ### Base URL
 
-`https://api.ghostdocs.com/v1` (Example)
+`https://api.ghostdocs.com/v1` (or `http://localhost:PORT/api/v1` for local development)
 
 ### Authentication
 
-API requests are expected to be authenticated using an API key or OAuth 2.0 token, passed in the `Authorization` header.
+API requests are secured using **Bearer Token Authentication**. Include your API key in the `Authorization` header for all protected endpoints:
 
-`Authorization: Bearer YOUR_API_KEY_OR_TOKEN`
+`Authorization: Bearer YOUR_API_KEY`
+
+--- 
+
+### 1. Project Management
+
+#### `POST /projects`
+
+Creates a new documentation project.
+
+*   **Description**: Initializes a new project, optionally linking it to a source code repository or accepting an initial code upload.
+*   **Request Body**: `application/json`
+    ```json
+    {
+      "name": "My New Project",
+      "description": "Documentation for a new microservice.",
+      "repositoryUrl": "https://github.com/user/repo",
+      "initialCodebase": "base64_encoded_zip_or_tar_of_code" // Optional
+    }
+    ```
+*   **Responses**:
+    *   `201 Created`: Project successfully created.
+        ```json
+        {
+          "id": "proj_abc123",
+          "name": "My New Project",
+          "status": "initialized",
+          "createdAt": "2023-10-27T10:00:00Z"
+        }
+        ```
+    *   `400 Bad Request`: Invalid input.
+    *   `401 Unauthorized`: Missing or invalid authentication token.
+
+#### `GET /projects/{projectId}`
+
+Retrieves details for a specific project.
+
+*   **Description**: Fetches all metadata and current status for a given project ID.
+*   **Path Parameters**:
+    *   `projectId` (string, required): The unique identifier of the project.
+*   **Responses**:
+    *   `200 OK`: Project details retrieved.
+        ```json
+        {
+          "id": "proj_abc123",
+          "name": "My New Project",
+          "description": "Documentation for a new microservice.",
+          "repositoryUrl": "https://github.com/user/repo",
+          "status": "ready_for_generation",
+          "lastGeneratedAt": "2023-10-27T11:30:00Z"
+        }
+        ```
+    *   `404 Not Found`: Project not found.
+    *   `401 Unauthorized`: Missing or invalid authentication token.
+
+--- 
+
+### 2. Documentation Generation
+
+#### `POST /projects/{projectId}/generate`
+
+Triggers documentation generation for a project.
+
+*   **Description**: Initiates the AI documentation generation process for the specified project. This can be a long-running operation.
+*   **Path Parameters**:
+    *   `projectId` (string, required): The unique identifier of the project.
+*   **Request Body**: `application/json` (Optional, to specify types of docs to generate)
+    ```json
+    {
+      "docTypes": ["readme", "api_docs", "inline_comments", "mermaid_diagram"],
+      "forceRegenerate": false
+    }
+    ```
+*   **Responses**:
+    *   `202 Accepted`: Documentation generation process started.
+        ```json
+        {
+          "message": "Documentation generation initiated.",
+          "jobId": "job_xyz789",
+          "statusUrl": "/api/v1/jobs/job_xyz789"
+        }
+        ```
+    *   `404 Not Found`: Project not found.
+    *   `401 Unauthorized`: Missing or invalid authentication token.
+
+#### `GET /jobs/{jobId}`
+
+Checks the status of a documentation generation job.
+
+*   **Description**: Retrieves the current status and progress of an asynchronous documentation generation job.
+*   **Path Parameters**:
+    *   `jobId` (string, required): The unique identifier of the generation job.
+*   **Responses**:
+    *   `200 OK`: Job status retrieved.
+        ```json
+        {
+          "id": "job_xyz789",
+          "projectId": "proj_abc123",
+          "status": "processing", // or "completed", "failed", "pending"
+          "progress": 75, // Percentage
+          "resultUrl": "/api/v1/projects/proj_abc123/docs" // Available if status is "completed"
+        }
+        ```
+    *   `404 Not Found`: Job not found.
+    *   `401 Unauthorized`: Missing or invalid authentication token.
+
+#### `GET /projects/{projectId}/docs`
+
+Retrieves the generated documentation for a project.
+
+*   **Description**: Fetches the latest generated documentation for a project. This endpoint returns a structured JSON object containing all generated documentation types.
+*   **Path Parameters**:
+    *   `projectId` (string, required): The unique identifier of the project.
+*   **Responses**:
+    *   `200 OK`: Documentation retrieved.
+        ```json
+        {
+          "projectId": "proj_abc123",
+          "generatedAt": "2023-10-27T12:00:00Z",
+          "readme": "# My Project README...",
+          "api_docs": "## API Endpoints...",
+          "inline_comments": [
+            { "file_path": "src/index.js", "code_with_comments": "// JSDoc..." }
+          ],
+          "mermaid_diagram": "graph TD\n  A[Start] --> B[End]"
+        }
+        ```
+    *   `404 Not Found`: Project or documentation not found.
+    *   `401 Unauthorized`: Missing or invalid authentication token.
+
+--- 
+
+### 3. Codebase Management
+
+#### `POST /projects/{projectId}/upload-code`
+
+Uploads a new version of the codebase for analysis.
+
+*   **Description**: Allows users to upload a new or updated codebase (e.g., as a ZIP archive) for the AI agent to analyze and generate documentation from.
+*   **Path Parameters**:
+    *   `projectId` (string, required): The unique identifier of the project.
+*   **Request Body**: `multipart/form-data`
+    *   `file` (file, required): The codebase archive (e.g., `.zip`, `.tar.gz`).
+*   **Responses**:
+    *   `200 OK`: Codebase uploaded and processing initiated.
+        ```json
+        {
+          "message": "Codebase uploaded successfully. Analysis initiated.",
+          "analysisJobId": "analysis_def456"
+        }
+        ```
+    *   `400 Bad Request`: Invalid file type or no file provided.
+    *   `401 Unauthorized`: Missing or invalid authentication token.
+
+--- 
 
 ### Error Handling
 
-Errors are returned with appropriate HTTP status codes and a JSON body containing an `error` object with `code` and `message` fields.
+All error responses follow a standard format:
 
 ```json
 {
-  "error": {
-    "code": "INVALID_INPUT",
-    "message": "The provided code snippet is empty or invalid."
-  }
+  "statusCode": 400,
+  "error": "Bad Request",
+  "message": "Invalid input provided for project name."
 }
 ```
 
---- 
+Common error codes:
 
-### 1. Generate Documentation
-
-Generates comprehensive documentation for a given code snippet or project structure.
-
-*   **Endpoint**: `/generate-docs`
-*   **Method**: `POST`
-*   **Description**: Submits code or project context to the AI agent for documentation generation. The response will include various documentation artifacts.
-
-#### Request
-
-*   **Headers**:
-    *   `Content-Type: application/json`
-    *   `Authorization: Bearer YOUR_API_KEY_OR_TOKEN`
-*   **Body**:
-
-    ```json
-    {
-      "project_name": "MyAwesomeProject",
-      "code_context": [
-        {
-          "file_path": "src/main.py",
-          "content": "def hello_world():\n    print('Hello, World!')"
-        },
-        {
-          "file_path": "README.md",
-          "content": "# My Awesome Project\nThis is a test project."
-        }
-      ],
-      "output_formats": ["readme", "api_docs", "inline_comments", "mermaid_diagram"],
-      "target_language": "python" // Optional: Hint for AI model
-    }
-    ```
-
-    *   `project_name` (string, required): The name of the project being documented.
-    *   `code_context` (array of objects, required): An array where each object represents a file in the codebase.
-        *   `file_path` (string, required): The relative path of the file.
-        *   `content` (string, required): The full content of the file.
-    *   `output_formats` (array of strings, optional): A list of desired documentation formats. Defaults to all available formats if not specified. Possible values: `"readme"`, `"api_docs"`, `"inline_comments"`, `"mermaid_diagram"`.
-    *   `target_language` (string, optional): A hint to the AI model about the primary programming language of the codebase.
-
-#### Response
-
-*   **Status**: `200 OK`
-*   **Body**:
-
-    ```json
-    {
-      "job_id": "doc_gen_12345",
-      "status": "processing",
-      "estimated_completion": "2023-10-27T10:30:00Z",
-      "documentation_results": {
-        "readme": "# My Awesome Project\n...",
-        "api_docs": "## API Endpoints\n...",
-        "inline_comments": [
-          {
-            "file_path": "src/main.py",
-            "code_with_comments": "\"\"\"\nThis is a docstring for main.py\n\"\"\"\ndef hello_world():\n    \"\"\"Prints 'Hello, World!' to the console.\"\"\"\n    print('Hello, World!')"
-          }
-        ],
-        "mermaid_diagram": "graph TD\n    A[User] --> B(Frontend)\n    B --> C{API Gateway}\n    C --> D[AI Service]"
-      }
-    }
-    ```
-
-    *   `job_id` (string): A unique identifier for the documentation generation job.
-    *   `status` (string): The current status of the job (e.g., `"processing"`, `"completed"`, `"failed"`).
-    *   `estimated_completion` (string, optional): An ISO 8601 timestamp indicating when the job is expected to complete.
-    *   `documentation_results` (object, optional): An object containing the generated documentation artifacts. This field might be empty or partial if the job is still `"processing"` or `"failed"`.
-
-#### Possible Error Codes
-
-*   `400 Bad Request`: `INVALID_INPUT`, `MISSING_REQUIRED_FIELD`
-*   `401 Unauthorized`: `AUTHENTICATION_FAILED`
-*   `403 Forbidden`: `PERMISSION_DENIED`
-*   `429 Too Many Requests`: `RATE_LIMIT_EXCEEDED`
-*   `500 Internal Server Error`: `AI_PROCESSING_ERROR`, `DATABASE_ERROR`
-
---- 
-
-### 2. Get Documentation Job Status
-
-Retrieves the status and results of a previously submitted documentation generation job.
-
-*   **Endpoint**: `/jobs/{job_id}`
-*   **Method**: `GET`
-*   **Description**: Allows clients to poll for the completion status and retrieve the final documentation output.
-
-#### Request
-
-*   **Headers**:
-    *   `Authorization: Bearer YOUR_API_KEY_OR_TOKEN`
-*   **Path Parameters**:
-    *   `job_id` (string, required): The ID of the documentation job.
-
-#### Response
-
-*   **Status**: `200 OK`
-*   **Body**:
-
-    ```json
-    {
-      "job_id": "doc_gen_12345",
-      "status": "completed",
-      "started_at": "2023-10-27T10:00:00Z",
-      "completed_at": "2023-10-27T10:25:00Z",
-      "documentation_results": {
-        "readme": "# My Awesome Project\n...",
-        "api_docs": "## API Endpoints\n...",
-        "inline_comments": [
-          {
-            "file_path": "src/main.py",
-            "code_with_comments": "\"\"\"\nThis is a docstring for main.py\n\"\"\"\ndef hello_world():\n    \"\"\"Prints 'Hello, World!' to the console.\"\"\"\n    print('Hello, World!')"
-          }
-        ],
-        "mermaid_diagram": "graph TD\n    A[User] --> B(Frontend)\n    B --> C{API Gateway}\n    C --> D[AI Service]"
-      }
-    }
-    ```
-
-    *   `job_id` (string): The unique identifier for the documentation generation job.
-    *   `status` (string): The current status of the job (e.g., `"processing"`, `"completed"`, `"failed"`).
-    *   `started_at` (string, optional): ISO 8601 timestamp when the job started.
-    *   `completed_at` (string, optional): ISO 8601 timestamp when the job completed.
-    *   `documentation_results` (object, optional): The generated documentation artifacts. This will be present and complete if `status` is `"completed"`.
-
-#### Possible Error Codes
-
-*   `401 Unauthorized`: `AUTHENTICATION_FAILED`
-*   `403 Forbidden`: `PERMISSION_DENIED`
-*   `404 Not Found`: `JOB_NOT_FOUND`
-*   `500 Internal Server Error`: `DATABASE_ERROR`
+*   `400 Bad Request`: Client-side error, e.g., invalid request body, missing parameters.
+*   `401 Unauthorized`: Authentication failed or token is missing/invalid.
+*   `403 Forbidden`: Authenticated but not authorized to perform the action.
+*   `404 Not Found`: The requested resource does not exist.
+*   `500 Internal Server Error`: An unexpected error occurred on the server.
+*   `503 Service Unavailable`: The server is temporarily unable to handle the request.
